@@ -1,0 +1,46 @@
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NVIDIA_API_KEY=${NVIDIA_API_KEY}
+      - NIM_ASR_URL=http://nim-asr:9000/v1/audio/transcriptions
+      - NIM_TTS_URL=http://nim-tts:9000/v1/tts/synthesize
+      - RUST_LOG=debug
+    depends_on:
+      - nim-asr
+      - nim-tts
+
+  # NVIDIA Canary (ASR/Translation)
+  nim-asr:
+    image: nvcr.io/nim/nvidia/canary-1b:1.5.0
+    environment:
+      - NGC_API_KEY=${NVIDIA_API_KEY}
+      - NIM_SERVER_PORT=9000
+      - NIM_GRPC_SERVER_PORT=50051
+    ports:
+      - "9000:9000"
+      - "50051:50051"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  # NVIDIA FastPitch/Magpie (TTS/Voice Cloning)
+  nim-tts:
+    image: nvcr.io/nim/nvidia/fastpitch-hifigan-tts:1.0.0 
+    environment:
+      - NGC_API_KEY=${NVIDIA_API_KEY}
+    ports:
+      - "9001:9000" # Map to different host port if needed
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]

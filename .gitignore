@@ -1,0 +1,22 @@
+# Environment Variables (Secrets)
+.env
+.env.*
+*.pem
+
+# Dependencies
+node_modules/
+target/
+
+# System
+.DS_Store
+.idea/
+.vscode/
+
+# Build Output
+dist/
+coverage/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
